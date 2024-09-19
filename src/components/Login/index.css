@@ -1,0 +1,125 @@
+.login-main-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 10%;
+}
+
+.login-left-container img {
+  width: 582px;
+  height: 373px;
+}
+
+.login-left-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-right-container {
+  background-color: #fefeff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 456px;
+  height: 458px;
+  box-shadow: 0px 8px 40px 0px #07070714;
+}
+
+.logo-container img {
+  width: 82px;
+  height: 42px;
+}
+
+.password-container,
+.email-container,
+.submit-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  margin: 3%;
+}
+
+.password-container input,
+.email-container input,
+.submit-container input {
+  width: 360px;
+  padding: 3%;
+  border: none;
+  outline: none;
+  background-color: #eeeeee;
+  font-size: large;
+  margin-top: 1%;
+  transition: border 0.3s ease;
+}
+
+.submit-container input {
+  background-color: #4094ef;
+  border-radius: 10px;
+  color: #fefeff;
+  margin-top: 5%;
+}
+
+.password-container input:hover,
+.email-container input:hover,
+.email-container input:focus,
+.password-container input:focus {
+  border: solid #7c7a7a;
+}
+
+.submit-container input:hover {
+  border: solid #137ff3;
+}
+
+.error-div {
+  color: red;
+  font-size: medium;
+}
+@media screen and (max-width: 900px) {
+  .login-left-container {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .login-main-container {
+    gap: 5%;
+  }
+  .login-left-container img {
+    width: 450px;
+    height: 373px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .login-right-container {
+    width: 350px;
+    height: 375px;
+  }
+
+  .password-container input,
+  .email-container input,
+  .submit-container input {
+    width: 300px;
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .login-right-container {
+    width: 250px;
+    height: 318px;
+  }
+
+  .password-container input,
+  .email-container input,
+  .submit-container input {
+    width: 200px !important;
+  }
+
+  .login-right-container h1 {
+    font-size: large;
+  }
+}
