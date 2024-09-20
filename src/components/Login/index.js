@@ -1,34 +1,53 @@
 import React, {useState} from 'react'
 import './index.css'
+import {async} from 'rxjs'
 
 const Login = () => {
-  const [email, setEmail] = useState('')
+  const [username, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
 
-  const formHandling = event => {
+  const formHandling = async event => {
     event.preventDefault()
-    let valid = true
 
     // Reset errors
     setEmailError('')
     setPasswordError('')
 
-    if (!email) {
-      setEmailError('Please provide a username or email')
-      valid = false
+    if (!username) {
+      setEmailError('Please provide a username or username')
     }
 
     if (!password) {
       setPasswordError('Please provide a password')
-      valid = false
     }
 
-    if (valid) {
-      console.log('Form handling')
-      console.log('User:', email)
-      console.log('UserPassword:', password)
+    if (username && password) {
+      const userDetails = {username, password}
+      console.log('userDetails', userDetails)
+      const url = 'https://apis.ccbp.in/login'
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userDetails),
+      }
+
+      try {
+        const response = await fetch(url, options)
+
+        if (response.ok) {
+          const token = await response.json()
+          console.log('yes', token)
+        } else {
+          const errorData = await response.json()
+          console.log('no---------', errorData)
+        }
+      } catch (error) {
+        console.error('Failed to fetch:', error)
+      }
     }
   }
 
@@ -55,7 +74,7 @@ const Login = () => {
                 type="text"
                 id="email"
                 autoComplete="username"
-                value={email}
+                value={username}
                 onChange={event => setEmail(event.target.value)}
               />
               {emailError && <div className="error-div">{emailError}</div>}
