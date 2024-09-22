@@ -1,4 +1,6 @@
 import React, {useState} from 'react'
+import Cookies from 'js-cookie'
+import {useHistory} from 'react-router-dom'
 import './index.css'
 import {async} from 'rxjs'
 
@@ -7,16 +9,22 @@ const Login = () => {
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState('')
   const [passwordError, setPasswordError] = useState('')
-
+  const history = useHistory()
+  const isSucess = token => {
+    Cookies.set('jwt_token', token, {expires: 30, path: '/'})
+    history.replace('/')
+  }
+  const isFailure = () => {
+    setPasswordError('Username or Password is invalid')
+  }
   const formHandling = async event => {
     event.preventDefault()
 
-    // Reset errors
     setEmailError('')
     setPasswordError('')
 
     if (!username) {
-      setEmailError('Please provide a username or username')
+      setEmailError('Please provide a username')
     }
 
     if (!password) {
@@ -29,9 +37,6 @@ const Login = () => {
       const url = 'https://apis.ccbp.in/login'
       const options = {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(userDetails),
       }
 
@@ -40,10 +45,11 @@ const Login = () => {
 
         if (response.ok) {
           const token = await response.json()
-          console.log('yes', token)
+          isSucess(token)
         } else {
           const errorData = await response.json()
           console.log('no---------', errorData)
+          isFailure()
         }
       } catch (error) {
         console.error('Failed to fetch:', error)
