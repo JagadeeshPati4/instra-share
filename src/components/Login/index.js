@@ -14,8 +14,8 @@ const Login = () => {
     Cookies.set('jwt_token', token, {expires: 30, path: '/'})
     history.replace('/')
   }
-  const isFailure = () => {
-    setPasswordError('Username or Password is invalid')
+  const isFailure = msg => {
+    setPasswordError(msg)
   }
   const formHandling = async event => {
     event.preventDefault()
@@ -45,11 +45,11 @@ const Login = () => {
 
         if (response.ok) {
           const token = await response.json()
-          isSucess(token)
+          isSucess(token.jwt_token)
         } else {
           const errorData = await response.json()
           console.log('no---------', errorData)
-          isFailure()
+          isFailure(errorData.error_msg)
         }
       } catch (error) {
         console.error('Failed to fetch:', error)

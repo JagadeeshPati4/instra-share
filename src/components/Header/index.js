@@ -46,7 +46,9 @@ const Header = () => {
           }`}
         >
           <input type="text" />
-          <FaSearch />
+          <button className="search-btn" testid="searchIcon">
+            <FaSearch />
+          </button>
         </div>
         <div className="nav-controls">
           <li>home</li>

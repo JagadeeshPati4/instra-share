@@ -104,7 +104,10 @@
   background-color: transparent;
   font-size: medium;
 }
-
+.search-btn {
+  border: none;
+  background-color: transparent;
+}
 .searchOpen {
   display: flex;
 }
