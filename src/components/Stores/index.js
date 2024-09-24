@@ -59,9 +59,8 @@ class StoriesSlide extends Component {
     this.setState({apiStatus: apiConfigurations.inProgress})
 
     const token = Cookies.get('jwt_token')
-    console.log(token)
+    // console.log(token)
     const apiStories = 'https://apis.ccbp.in/insta-share/stories'
-
     const options = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -73,7 +72,7 @@ class StoriesSlide extends Component {
       const response = await fetch(apiStories, options)
       if (response.ok) {
         const data = await response.json()
-        console.log('data', data)
+        // console.log('data', data)
         this.setState({
           userStories: data.users_stories,
           apiStatus: apiConfigurations.success,
@@ -87,10 +86,14 @@ class StoriesSlide extends Component {
   }
 
   failureCase = () => (
-    <div className="main-container">
+    <div className="main-container-failure">
       <h1>Failure View</h1>
-      <button type="button" onClick={this.getUserStories}>
-        Retry
+      <button
+        type="button"
+        className="failure-button"
+        onClick={this.getUserStories}
+      >
+        Retry again
       </button>
     </div>
   )
