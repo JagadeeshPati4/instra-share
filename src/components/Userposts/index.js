@@ -5,6 +5,8 @@ import Cookies from 'js-cookie'
 import Spinner from '../Loder'
 import Userpost from '../Userpost'
 
+import './index.css'
+
 const apiConfigurations = {
   initial: 'INITIAL',
   success: 'SUCCESS',
@@ -23,10 +25,11 @@ class Userposts extends Component {
 
   inSucessView = () => {
     const {userPosts} = this.state
+    console.log('userPosts', userPosts)
     return (
       <div className="posts-main-container">
         {userPosts.map(post => (
-          <Userpost post={post} key={post.userId} />
+          <Userpost post={post} key={post.postId} />
         ))}
       </div>
     )
@@ -50,7 +53,7 @@ class Userposts extends Component {
   )
 
   inProgressView = () => (
-    <div className="inprogess-post-container">
+    <div className="posts-main-container">
       <Spinner />
     </div>
   )

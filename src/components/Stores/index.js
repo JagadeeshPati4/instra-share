@@ -99,7 +99,7 @@ class StoriesSlide extends Component {
   )
 
   inProgressCase = () => (
-    <div className="main-container">
+    <div className="main-container-failure">
       <Spinner />
     </div>
   )
