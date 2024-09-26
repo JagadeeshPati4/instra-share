@@ -1,0 +1,57 @@
+.story-image {
+  height: 70px;
+  width: 70px;
+  border-radius: 35px;
+}
+.slick-item {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  /* height: 70px; */
+  /* width: 70px; */
+}
+.user-story-name {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  color: #262626;
+}
+.slider-container {
+  width: 80%;
+  margin-top: 3%;
+}
+.slick-prev:before,
+.slick-next:before {
+  color: #989898;
+  font-size: 25px;
+  line-height: 0px;
+}
+
+.failure-button {
+  height: 60px;
+
+  font-size: large;
+  background-color: #4094ef;
+  border: none;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 10px;
+}
+.main-container {
+  margin-top: 30px;
+}
+@media screen and (min-width: 768px) {
+  .slick-prev:before,
+  .slick-next:before {
+    color: #989898;
+    font-size: 39px;
+    line-height: 0px;
+  }
+  .story-image {
+    height: 100px;
+    width: 100px;
+    border-radius: 50px;
+  }
+}
