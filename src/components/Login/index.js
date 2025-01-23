@@ -1,8 +1,7 @@
-import React, {useState} from 'react'
+import {useState} from 'react'
 import Cookies from 'js-cookie'
 import {useHistory} from 'react-router-dom'
 import './index.css'
-import {async} from 'rxjs'
 
 const Login = () => {
   const [username, setEmail] = useState('')

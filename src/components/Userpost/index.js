@@ -1,5 +1,7 @@
 import {Component} from 'react'
 
+import {Link} from 'react-router-dom'
+
 import {BsHeart, BsHeartFill} from 'react-icons/bs'
 
 import {FaRegComment} from 'react-icons/fa'
@@ -10,36 +12,43 @@ import Cookies from 'js-cookie'
 
 import './index.css'
 
-class Userpost extends Component {
+class UserInstaPost extends Component {
   state = {
     isLiked: false,
   }
 
-  islikedTogle = async () => {
-    this.setState(prevState => ({isLiked: !prevState.isLiked}))
-    const {post} = this.props
-    const {postId} = post
+  toggleLike = async () => {
+    await this.setState(prevState => ({isLiked: !prevState.isLiked}))
+
+    const {userPost} = this.props
+    const {postId} = userPost
     const {isLiked} = this.state
-    const likeBody = {
+
+    const jwtToken = Cookies.get('jwt_token')
+
+    const likedRequestBody = {
       like_status: isLiked,
     }
-    const token = Cookies.get('jwt_token')
-    const apiIsliked = `https://apis.ccbp.in/insta-share/posts/${postId}/like`
+
+    const likedPostUrl = `https://apis.ccbp.in/insta-share/posts/${postId}/like`
+
     const options = {
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearear ${token}`,
+        Authorization: `Bearer ${jwtToken}`,
       },
       method: 'POST',
-      body: JSON.stringify(likeBody),
+      body: JSON.stringify(likedRequestBody),
     }
-    const responce = await fetch(apiIsliked, options)
-    const res = await responce.json()
-    console.log('res', res)
+
+    const response = await fetch(likedPostUrl, options)
+    const fetchedData = await response.json()
+
+    console.log(fetchedData)
   }
 
   render() {
-    const {post} = this.props
+    const {userPost} = this.props
     const {
       profilePic,
       userName,
@@ -48,58 +57,66 @@ class Userpost extends Component {
       comments,
       createdAt,
       postDetails,
-    } = post
+    } = userPost
+
     const {isLiked} = this.state
+
     return (
-      <div className="user-post-container">
-        <div className="post-profile-container">
-          <div className="profile-container">
-            <img className="profile-image" src={profilePic} alt="profile-pic" />
+      <li className="user-post-list-item">
+        <Link to={`/users/${userId}`} className="profile-link">
+          <div className="profile-section">
+            <div className="image-container">
+              <img
+                src={profilePic}
+                alt="post author profile"
+                className="profile-pic"
+              />
+            </div>
+            <p className="profile-user-name">{userName}</p>
           </div>
-          <p className="post-user-name">{userName}</p>
-        </div>
-        <div className="post-container">
-          <img
-            className="post-image"
-            src={postDetails.image_url}
-            alt="post-pic"
-          />
-        </div>
-        <div className="comment-container">
-          <div className="like-section">
-            {isLiked ? (
-              <button type="button" onClick={this.islikedTogle()}>
-                <BsHeartFill size={25} />
-              </button>
-            ) : (
-              <button type="button" onClick={this.islikedTogle()}>
-                <BsHeart size={25} />
+        </Link>
+        <img src={postDetails.image_url} alt="post" className="profile-post" />
+        <div className="post-detail-and-stats-container">
+          <div>
+            {!isLiked && (
+              <button
+                type="button"
+                onClick={this.toggleLike}
+                className="user-post-button"
+                // data-testid="likeIcon"
+              >
+                <BsHeart size={20} color="#262626" />
               </button>
             )}
-            <button type="button">
-              <FaRegComment size={25} />
+            {isLiked && (
+              <button
+                type="button"
+                onClick={this.toggleLike}
+                className="user-post-button"
+              >
+                <BsHeartFill size={20} color="red" />
+              </button>
+            )}
+            <button type="button" className="user-post-button">
+              <FaRegComment size={20} color="#475569" />
             </button>
-            <button type="button">
-              <BiShareAlt size={25} />
+            <button type="button" className="user-post-button">
+              <BiShareAlt size={20} color="475569" />
             </button>
           </div>
-          <div>
-            <p className="likes">
-              {isLiked ? likesCount + 1 : likesCount} likes
+          <p className="likes">{isLiked ? likesCount + 1 : likesCount} likes</p>
+          <p className="caption">{postDetails.caption}</p>
+          {comments.map(comment => (
+            <p key={comment.user_id} className="comments">
+              <span className="commented-user">{comment.user_name} </span>
+              <span className="user-comment">{comment.comment}</span>
             </p>
-            <p className="caption">{postDetails.caption}</p>
-            {comments.map(comment => (
-              <p key={comment.user_id} className="comments">
-                <span className="commented-user">{comment.user_name} </span>
-                <span className="user-comment">{comment.comment}</span>
-              </p>
-            ))}
-            <p className="created-date">{createdAt}</p>
-          </div>
+          ))}
+          <p className="created-date">{createdAt}</p>
         </div>
-      </div>
+      </li>
     )
   }
 }
 
-export default Userpost
+export default UserInstaPost

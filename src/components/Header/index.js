@@ -1,75 +1,152 @@
-import React, {useState, useEffect} from 'react'
-import {GiHamburgerMenu} from 'react-icons/gi'
-import {IoClose} from 'react-icons/io5'
-import {FaSearch} from 'react-icons/fa'
+import {Component} from 'react'
+
+import Cookies from 'js-cookie'
+
+import {Link, withRouter} from 'react-router-dom'
+
 import './index.css'
 
-const Header = () => {
-  const [open, setOpen] = useState(false)
-  const [searchOpen, setSearchOpne] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+class Header extends Component {
+  state = {
+    showMobileMenu: true,
+    isMobile: false,
+  }
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 768px)')
+  componentDidMount() {
+    this.updateIsMobile() // Check the initial state
+    window.addEventListener('resize', this.updateIsMobile) // Update on resize
+  }
 
-    const handleMediaChange = e => {
-      setIsMobile(e.matches)
-    }
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.updateIsMobile) // Clean up listener
+  }
 
-    handleMediaChange(mediaQuery)
+  updateIsMobile = () => {
+    const isMobile =
+      /android|iphone|ipad|ipod|windows phone/i.test(
+        navigator.userAgent || navigator.vendor || window.opera,
+      ) || window.innerWidth <= 768 // Consider small screen widths as mobile
+    this.setState({isMobile})
+  }
 
-    mediaQuery.addEventListener('change', handleMediaChange)
+  onClickHamburgerMenu = () => {
+    this.setState(prevState => ({
+      showMobileMenu: !prevState.showMobileMenu,
+    }))
+  }
 
-    return () => mediaQuery.removeEventListener('change', handleMediaChange)
-  }, [])
-  return (
-    <nav className="header-nav">
-      <div className="header-left-container">
-        <div className="left-container">
-          <img src={`${process.env.PUBLIC_URL}/img/logo.png`} alt="logo" />
-          <h1>Instra Share</h1>
-        </div>
-        <div className="burgger-button">
-          <button type="button" onClick={() => setOpen(!open)}>
-            <GiHamburgerMenu size={25} />
-          </button>
-        </div>
-      </div>
-      <div
-        className={`header-right-conatiner ${
-          open && isMobile ? 'open' : 'close'
-        }`}
-      >
-        <div
-          className={`header-search ${
-            searchOpen && isMobile ? 'searchOpen' : 'searchClose'
-          }`}
-        >
-          <input type="text" />
-          <button className="search-btn" testid="searchIcon">
-            <FaSearch />
-          </button>
-        </div>
-        <div className="nav-controls">
-          <li>home</li>
+  onClickLogout = () => {
+    const {history} = this.props
+    Cookies.remove('jwt_token')
+    history.replace('/login')
+  }
 
-          <button
-            className="search-li"
-            type="button"
-            onClick={() => setSearchOpne(!searchOpen)}
+  render() {
+    const {showMobileMenu, isMobile} = this.state
+    const {location} = this.props // Access current URL details
+    const isActive = path => location.pathname === path
+    console.log('isMobile', isMobile)
+    console.log('showMobileMenu', showMobileMenu)
+    return (
+      <header className="header-section">
+        <nav className={`logo-header-container ${isMobile && 'mobile'}`}>
+          <div className="logo-header-container">
+            <div className="link-text">
+              <Link to="/">
+                <img
+                  src="https://res.cloudinary.com/dvmp5vgbm/image/upload/v1662634898/InstaShare/Insta_share_logo_pm2btx.png"
+                  alt="website logo"
+                  className="image-logo"
+                />
+              </Link>
+              <h1 className="nav-heading">Insta Share</h1>
+            </div>
+            {isMobile && (
+              <button
+                type="button"
+                className="hamburger-menu"
+                onClick={this.onClickHamburgerMenu}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M3.948 6H20.051C20.573 6 21 6.427 21 6.949V7.051C21 7.573 20.573 8 20.051 8H3.948C3.426 8 3 7.573 3 7.051V6.949C3 6.427 3.426 6 3.948 6ZM20.051 11H3.948C3.426 11 3 11.427 3 11.949V12.051C3 12.573 3.426 13 3.948 13H20.051C20.573 13 21 12.573 21 12.051V11.949C21 11.427 20.573 11 20.051 11ZM20.051 16H3.948C3.426 16 3 16.427 3 16.949V17.051C3 17.573 3.426 18 3.948 18H20.051C20.573 18 21 17.573 21 17.051V16.949C21 16.427 20.573 16 20.051 16Z"
+                    fill="#262626"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+          <section
+            className={`home-menu-container  ${
+              isMobile && (showMobileMenu ? 'display' : 'undisplay')
+            }`}
           >
-            Search
-          </button>
+            <div className="list-items-section">
+              <Link to="/">
+                <p
+                  className={
+                    isActive('/') ? 'active-link list-item' : 'list-item'
+                  }
+                >
+                  Home
+                </p>
+              </Link>
+              {isMobile && <p className="list-item ">Search</p>}
+              <Link to="/my-profile">
+                <p
+                  className={
+                    isActive('/my-profile')
+                      ? 'active-link list-item'
+                      : 'list-item'
+                  }
+                >
+                  Profile
+                </p>
+              </Link>
 
-          <li>Profile</li>
-          <button className="logout-button">Logout</button>
-          <button className="close-button" onClick={() => setOpen(!open)}>
-            <IoClose size={20} />
-          </button>
-        </div>
-      </div>
-    </nav>
-  )
+              <button
+                type="button"
+                className="logout-button"
+                onClick={this.onClickLogout}
+              >
+                Logout
+              </button>
+            </div>
+            {isMobile && (
+              <button
+                type="button"
+                className="menu-close-button"
+                onClick={this.onClickHamburgerMenu}
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    clipRule="evenodd"
+                    d="M10 20C15.5228 20 20 15.5228 20 10C20 4.47715 15.5228 0 10 0C4.47715 0 0 4.47715 0 10C0 15.5228 4.47715 20 10 20ZM7.70711 6.29289C7.31658 5.90237 6.68342 5.90237 6.29289 6.29289C5.90237 6.68342 5.90237 7.31658 6.29289 7.70711L8.58579 10L6.29289 12.2929C5.90237 12.6834 5.90237 13.3166 6.29289 13.7071C6.68342 14.0976 7.31658 14.0976 7.70711 13.7071L10 11.4142L12.2929 13.7071C12.6834 14.0976 13.3166 14.0976 13.7071 13.7071C14.0976 13.3166 14.0976 12.6834 13.7071 12.2929L11.4142 10L13.7071 7.70711C14.0976 7.31658 14.0976 6.68342 13.7071 6.29289C13.3166 5.90237 12.6834 5.90237 12.2929 6.29289L10 8.58579L7.70711 6.29289Z"
+                    fill="#262626"
+                  />
+                </svg>
+              </button>
+            )}
+          </section>
+        </nav>
+      </header>
+    )
+  }
 }
 
-export default Header
+export default withRouter(Header)

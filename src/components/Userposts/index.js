@@ -2,118 +2,125 @@ import {Component} from 'react'
 
 import Cookies from 'js-cookie'
 
-import Spinner from '../Loder'
-import Userpost from '../Userpost'
-
 import './index.css'
+import LoaderSpinner from '../Loder'
+import UserInstaPost from '../Userpost'
 
-const apiConfigurations = {
+const apiStatusConstants = {
   initial: 'INITIAL',
   success: 'SUCCESS',
   failure: 'FAILURE',
-  inProgress: 'INPROGRESS',
+  inProgress: 'IN_PROGRESS',
 }
-class Userposts extends Component {
+
+class UserPosts extends Component {
   state = {
-    apiStatus: apiConfigurations.initial,
     userPosts: [],
+    apiStatus: apiStatusConstants.initial,
   }
 
   componentDidMount() {
     this.getUserPosts()
   }
 
-  inSucessView = () => {
-    const {userPosts} = this.state
-    console.log('userPosts', userPosts)
-    return (
-      <div className="posts-main-container">
-        {userPosts.map(post => (
-          <Userpost post={post} key={post.postId} />
-        ))}
-      </div>
-    )
-  }
-
-  inFailureView = () => (
-    <div className="failure-post-conatinar">
-      <img
-        src={`${process.env.PUBLIC_URL}/img/something-went-wrong.png`}
-        alt="failure view"
-      />
-      <p>Something went wrong. Please try again</p>
-      <button
-        type="button"
-        className="failure-button"
-        onClick={this.getUserStories}
-      >
-        Retry again
-      </button>
-    </div>
-  )
-
-  inProgressView = () => (
-    <div className="posts-main-container">
-      <Spinner />
-    </div>
-  )
-
   getUserPosts = async () => {
-    this.setState({apiStatus: apiConfigurations.inProgress})
+    this.setState({apiStatus: apiStatusConstants.inProgress})
 
-    const token = Cookies.get('jwt_token')
-    console.log(token)
-    const apiStories = 'https://apis.ccbp.in/insta-share/posts'
+    const jwtToken = Cookies.get('jwt_token')
+
+    const userPostsUrl = 'https://apis.ccbp.in/insta-share/posts'
     const options = {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${jwtToken}`,
       },
       method: 'GET',
     }
 
-    try {
-      const response = await fetch(apiStories, options)
-      if (response.ok) {
-        const data = await response.json()
+    const response = await fetch(userPostsUrl, options)
 
-        const userPost = data.posts.map(each => ({
-          postId: each.post_id,
-          profilePic: each.profile_pic,
-          userId: each.user_id,
-          userName: each.user_name,
-          createdAt: each.created_at,
-          likesCount: each.likes_count,
-          postDetails: each.post_details,
-          comments: each.comments,
-          caption: each.caption,
-        }))
+    if (response.ok === true) {
+      const fetchedData = await response.json()
 
-        this.setState({
-          userPosts: userPost,
-          apiStatus: apiConfigurations.success,
-        })
-      } else {
-        this.setState({apiStatus: apiConfigurations.failure})
-      }
-    } catch (error) {
-      this.setState({apiStatus: apiConfigurations.failure})
+      const updatedData = fetchedData.posts.map(eachPost => ({
+        postId: eachPost.post_id,
+        profilePic: eachPost.profile_pic,
+        userId: eachPost.user_id,
+        userName: eachPost.user_name,
+        createdAt: eachPost.created_at,
+        likesCount: eachPost.likes_count,
+        postDetails: eachPost.post_details,
+        comments: eachPost.comments,
+        caption: eachPost.caption,
+      }))
+
+      this.setState({
+        apiStatus: apiStatusConstants.success,
+        userPosts: updatedData,
+      })
+    }
+
+    if (response.status === 401) {
+      this.setState({apiStatus: apiStatusConstants.failure})
     }
   }
 
-  render() {
+  renderLoadingView = () => <LoaderSpinner />
+
+  onClickTryAgainButton = () => {
+    this.getUserPosts()
+  }
+
+  renderFailureView = () => (
+    <div className="failure-view">
+      <img
+        src="https://res.cloudinary.com/dvmp5vgbm/image/upload/v1662435108/InstaShare/SomethingWentWrong_glggye.png"
+        alt="failure view"
+      />
+      <h1 className="failure-view-heading">
+        Something went wrong. Please try again.
+      </h1>
+      <button
+        type="button"
+        onClick={this.onClickTryAgainButton}
+        className="failure-view-button"
+      >
+        Try again
+      </button>
+    </div>
+  )
+
+  renderSuccessView = () => {
+    const {userPosts} = this.state
+
+    return (
+      <div>
+        <ul className="user-posts-view">
+          {userPosts.map(post => (
+            <UserInstaPost key={post.postId} userPost={post} />
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  renderUserPostsView = () => {
     const {apiStatus} = this.state
 
     switch (apiStatus) {
-      case apiConfigurations.inProgress:
-        return this.inProgressView()
-      case apiConfigurations.failure:
-        return this.inFailureView()
-      case apiConfigurations.success:
-        return this.inSucessView()
+      case apiStatusConstants.inProgress:
+        return this.renderLoadingView()
+      case apiStatusConstants.success:
+        return this.renderSuccessView()
+      case apiStatusConstants.failure:
+        return this.renderFailureView()
       default:
         return null
     }
   }
+
+  render() {
+    return <div className="main-container">{this.renderUserPostsView()}</div>
+  }
 }
 
-export default Userposts
+export default UserPosts

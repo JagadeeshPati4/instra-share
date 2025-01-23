@@ -1,15 +1,18 @@
 import {Component} from 'react'
-import Slider from 'react-slick'
+
 import Cookies from 'js-cookie'
-import Spinner from '../Loder'
+
+import Slider from 'react-slick'
+
+import LoaderSpinner from '../Loder'
 
 import './index.css'
 
-const apiConfigurations = {
+const apiStatusConstants = {
   initial: 'INITIAL',
   success: 'SUCCESS',
   failure: 'FAILURE',
-  inProgress: 'INPROGRESS',
+  inProgress: 'IN_PROGRESS',
 }
 
 const settings = {
@@ -20,34 +23,46 @@ const settings = {
   responsive: [
     {
       breakpoint: 1300,
-      settings: {slidesToShow: 8},
+      settings: {
+        slidesToShow: 8,
+      },
     },
     {
       breakpoint: 1200,
-      settings: {slidesToShow: 7},
+      settings: {
+        slidesToShow: 7,
+      },
     },
     {
       breakpoint: 1100,
-      settings: {slidesToShow: 6},
+      settings: {
+        slidesToShow: 6,
+      },
     },
     {
       breakpoint: 900,
-      settings: {slidesToShow: 5},
+      settings: {
+        slidesToShow: 5,
+      },
     },
     {
       breakpoint: 768,
-      settings: {slidesToShow: 4},
+      settings: {
+        slidesToShow: 4,
+      },
     },
     {
       breakpoint: 512,
-      settings: {slidesToShow: 3},
+      settings: {
+        slidesToShow: 3,
+      },
     },
   ],
 }
 
-class StoriesSlide extends Component {
+class UserStories extends Component {
   state = {
-    apiStatus: apiConfigurations.initial,
+    apiStatus: apiStatusConstants.initial,
     userStories: [],
   }
 
@@ -56,70 +71,61 @@ class StoriesSlide extends Component {
   }
 
   getUserStories = async () => {
-    this.setState({apiStatus: apiConfigurations.inProgress})
+    this.setState({apiStatus: apiStatusConstants.inProgress})
 
-    const token = Cookies.get('jwt_token')
-    // console.log(token)
-    const apiStories = 'https://apis.ccbp.in/insta-share/stories'
+    const jwtToken = Cookies.get('jwt_token')
+
+    const userStoriesApiUrl = 'https://apis.ccbp.in/insta-share/stories'
     const options = {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${jwtToken}`,
       },
       method: 'GET',
     }
 
-    try {
-      const response = await fetch(apiStories, options)
-      if (response.ok) {
-        const data = await response.json()
-        // console.log('data', data)
-        this.setState({
-          userStories: data.users_stories,
-          apiStatus: apiConfigurations.success,
-        })
-      } else {
-        this.setState({apiStatus: apiConfigurations.failure})
-      }
-    } catch (error) {
-      this.setState({apiStatus: apiConfigurations.failure})
+    const response = await fetch(userStoriesApiUrl, options)
+    if (response.ok === true) {
+      const fetchedData = await response.json()
+      //   console.log('Fetched Data', fetchedData)
+
+      const updatedData = await fetchedData.users_stories.map(userStory => ({
+        storyUrl: userStory.story_url,
+        userId: userStory.user_id,
+        userName: userStory.user_name,
+      }))
+
+      //   console.log('updatedData', updatedData)
+
+      this.setState({
+        userStories: updatedData,
+        apiStatus: apiStatusConstants.success,
+      })
+    }
+
+    if (response.status === 401) {
+      this.setState({
+        apiStatus: apiStatusConstants.failure,
+      })
     }
   }
 
-  failureCase = () => (
-    <div className="main-container-failure">
-      <h1>Failure View</h1>
-      <button
-        type="button"
-        className="failure-button"
-        onClick={this.getUserStories}
-      >
-        Retry again
-      </button>
-    </div>
-  )
-
-  inProgressCase = () => (
-    <div className="main-container-failure">
-      <Spinner />
+  renderLoadingView = () => (
+    <div className="main-container">
+      <LoaderSpinner />
     </div>
   )
 
   renderSlider = () => {
     const {userStories} = this.state
-    console.log('userStories', userStories)
-    return (
-      <div className="slider-container">
-        <Slider {...settings}>
-          {userStories.map(story => {
-            const {
-              user_id: userId,
-              story_url: storyUrl,
-              user_name: userName,
-            } = story
 
+    return (
+      <div className="slick-container">
+        <Slider {...settings}>
+          {userStories.map(eachLogo => {
+            const {userId, storyUrl, userName} = eachLogo
             return (
               <div className="slick-item" key={userId}>
-                <img className="story-image" src={storyUrl} alt="user story" />
+                <img className="logo-image" src={storyUrl} alt={userName} />
                 <p className="user-story-name">{userName}</p>
               </div>
             )
@@ -129,20 +135,30 @@ class StoriesSlide extends Component {
     )
   }
 
+  renderSuccessView = () => (
+    <div className="main-container">{this.renderSlider()}</div>
+  )
+
+  renderFailureView = () => (
+    <div className="main-container">
+      <h1>Failure View</h1>
+      <button type="button">Retry</button>
+    </div>
+  )
+
   render() {
     const {apiStatus} = this.state
-
     switch (apiStatus) {
-      case apiConfigurations.inProgress:
-        return this.inProgressCase()
-      case apiConfigurations.failure:
-        return this.failureCase()
-      case apiConfigurations.success:
-        return this.renderSlider()
+      case apiStatusConstants.success:
+        return this.renderSuccessView()
+      case apiStatusConstants.failure:
+        return this.renderFailureView()
+      case apiStatusConstants.inProgress:
+        return this.renderLoadingView()
       default:
         return null
     }
   }
 }
 
-export default StoriesSlide
+export default UserStories
