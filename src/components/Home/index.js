@@ -16,7 +16,6 @@ class Home extends Component {
       <>
         <Header />
         <main className="home-container">
-          {/* Conditionally render UserStories and UserPosts only on / route */}
           {location.pathname === '/' && (
             <>
               <UserStories />
@@ -24,10 +23,8 @@ class Home extends Component {
             </>
           )}
 
-          {/* Render MyProfile on /my-profile route */}
           {location.pathname === '/my-profile' && <MyProfile />}
 
-          {/* Render UserProfile on /users/:userId route */}
           {location.pathname.startsWith('/users/') && match.params.userId && (
             <UserProfile userId={match.params.userId} />
           )}
